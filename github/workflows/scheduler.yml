@@ -6,14 +6,14 @@ name: Intercom Reporting Scheduler
 # Note: GitHub Actions CRON runs based on UTC time zone.
 # '0 9' means 9:00 AM UTC. Adjust for your local time.
 # ----------------------------------------------------
-on:
-  schedule:
-    # Daily Report: Runs every day at 09:00 AM UTC
-    - cron: '0 9 * * *' 
-    # Weekly Report: Runs every Monday (day 1) at 09:05 AM UTC
+on: # <-- ALIGNED with 'name:'
+  schedule: # <-- Indented 2 spaces under 'on:'
+    # Daily Report
+    - cron: '0 9 * * *' # <-- Indented 4 spaces under 'on:'
+    # Weekly Report
     - cron: '5 9 * * 1'
-    # Monthly Report: Runs on the 1st of every month at 09:10 AM UTC
-    - cron: '10 9 1 * *' 
+    # Monthly Report
+    - cron: '10 9 1 * *'
 
 jobs:
   run_reports:
