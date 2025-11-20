@@ -1,1 +1,61 @@
+name: Intercom Reporting Scheduler
 
+# ----------------------------------------------------
+# 1. SCHEDULE TRIGGERS
+# Define the three CRON schedules that will trigger this workflow.
+# Note: GitHub Actions CRON runs based on UTC time zone.
+# '0 9' means 9:00 AM UTC. Adjust for your local time.
+# ----------------------------------------------------
+on:
+  schedule:
+    # Daily Report: Runs every day at 09:00 AM UTC
+    - cron: '0 9 * * *' 
+    # Weekly Report: Runs every Monday (day 1) at 09:05 AM UTC
+    - cron: '5 9 * * 1'
+    # Monthly Report: Runs on the 1st of every month at 09:10 AM UTC
+    - cron: '10 9 1 * *' 
+
+jobs:
+  run_reports:
+    runs-on: ubuntu-latest
+
+    # Set all environment variables (tokens) once for the whole job
+    env:
+      INTERCOM_TOKEN: ${{ secrets.INTERCOM_TOKEN }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+        
+      # ----------------------------------------------------
+      # 2. CONDITIONAL EXECUTION
+      # Check the triggering CRON schedule and run the correct mode.
+      # ----------------------------------------------------
+      
+      # Execute Daily Report
+      # This step only runs IF the cron schedule matches '0 9 * * *'
+      - name: Run Daily Report
+        if: github.event.schedule == '0 9 * * *'
+        run: python main.py daily
+
+      # Execute Weekly Report
+      # This step only runs IF the cron schedule matches '5 9 * * 1'
+      - name: Run Weekly Report
+        if: github.event.schedule == '5 9 * * 1'
+        run: python main.py weekly
+
+      # Execute Monthly Report
+      # This step only runs IF the cron schedule matches '10 9 1 * *'
+      - name: Run Monthly Report
+        if: github.event.schedule == '10 9 1 * *'
+        run: python main.py monthly
